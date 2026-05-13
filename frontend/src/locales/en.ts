@@ -1,5 +1,8 @@
 /** English UI strings — canonical keys for all locales. */
 export const enMessages = {
+  brandName: "WanCe Quant",
+  studioName: "WanZhi Creative Frontier",
+  brandSubtitle: "An AI quant strategy workspace by WanZhi Creative Frontier",
   home: "Home",
   agent: "Agent",
   alphaZoo: "Alpha Zoo",
@@ -78,8 +81,8 @@ export const enMessages = {
   equityAndDrawdown: "Equity & Drawdown",
   examples: "Try an example:",
   bye: "Goodbye",
-  heroTitle: "AI-Powered Quant Strategy Research",
-  heroDesc: "Describe a trading strategy in natural language. The agent generates code, runs backtests, and optimizes — all in real time.",
+  heroTitle: "WanCe Quant",
+  heroDesc: "An AI-powered quant strategy research platform by WanZhi Creative Frontier. Describe a strategy in natural language, then let agents generate code, run backtests, and optimize in real time.",
   feat1: "AI Agent",
   feat1d: "Natural language strategy generation with ReAct reasoning",
   feat2: "Built-in Backtest",
@@ -246,7 +249,7 @@ export const enMessages = {
   retry: "retry",
   completed: "completed",
   finalReport: "Final Report",
-  welcomeTagline: "Vibe trading with your professional financial agent team",
+  welcomeTagline: "An AI quant strategy workspace by WanZhi Creative Frontier",
   welcomeCatMultiMarket: "Multi-Market Backtest",
   welcomeCatResearch: "Research & Analysis",
   welcomeCatSwarm: "Swarm Teams",

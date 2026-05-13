@@ -2,6 +2,9 @@ import type { Messages } from "./en";
 
 /** Simplified Chinese — keep placeholders like {command}, {n}, {tool}, {count} unchanged. */
 export const zhCNMessages: Messages = {
+  brandName: "万策量化",
+  studioName: "万智创界",
+  brandSubtitle: "万智创界出品的 AI 量化策略工作台",
   home: "首页",
   agent: "智能体",
   alphaZoo: "Alpha 因子库",
@@ -80,8 +83,8 @@ export const zhCNMessages: Messages = {
   equityAndDrawdown: "净值与回撤",
   examples: "试试示例：",
   bye: "再见",
-  heroTitle: "AI 驱动的量化策略研究",
-  heroDesc: "用自然语言描述策略，Agent 将生成代码、运行回测并迭代优化——全程实时可见。",
+  heroTitle: "万策量化",
+  heroDesc: "万智创界出品的 AI 量化策略研究平台。用自然语言描述策略，智能体将生成代码、运行回测并实时迭代优化。",
   feat1: "AI Agent",
   feat1d: "自然语言生成策略，ReAct 推理调用工具",
   feat2: "内置回测",
@@ -248,7 +251,7 @@ export const zhCNMessages: Messages = {
   retry: "重试中",
   completed: "已完成",
   finalReport: "最终报告",
-  welcomeTagline: "和你的专业金融智能体团队一起做量化研究",
+  welcomeTagline: "万智创界出品的 AI 量化策略工作台",
   welcomeCatMultiMarket: "多市场回测",
   welcomeCatResearch: "研究与分析",
   welcomeCatSwarm: "智能体团队",
