@@ -2,25 +2,26 @@
 import { Link, Outlet, useLocation, useSearchParams } from "react-router-dom";
 import { BarChart3, Bot, Moon, Sun, Plus, Trash2, Pencil, MessageSquare, ChevronsLeft, ChevronsRight, Settings, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 import { useDarkMode } from "@/hooks/useDarkMode";
 import { api, type SessionItem } from "@/lib/api";
 import { useAgentStore } from "@/stores/agent";
 import { ConnectionBanner } from "@/components/layout/ConnectionBanner";
 
-// Bump on each release; one place keeps the footer in sync with package.json.
 const APP_VERSION = "v0.1.8";
 
 const NAV = [
-  { to: "/", icon: BarChart3, label: "Home" },
-  { to: "/agent", icon: Bot, label: "Agent" },
-  { to: "/alpha-zoo", icon: Layers, label: "Alpha Zoo" },
-  { to: "/settings", icon: Settings, label: "Settings" },
-  { to: "/correlation", icon: BarChart3, label: "Correlation Matrix" },
+  { to: "/", icon: BarChart3, key: "home" as const },
+  { to: "/agent", icon: Bot, key: "agent" as const },
+  { to: "/alpha-zoo", icon: Layers, key: "alphaZoo" as const },
+  { to: "/settings", icon: Settings, key: "settings" as const },
+  { to: "/correlation", icon: BarChart3, key: "correlation" as const },
 ];
 
 export function Layout() {
   const { pathname } = useLocation();
   const [searchParams] = useSearchParams();
+  const { t, locale, setLocale } = useI18n();
   const { dark, toggle } = useDarkMode();
   const [sessions, setSessions] = useState<SessionItem[]>([]);
   const [sessionsLoading, setSessionsLoading] = useState(true);
@@ -78,32 +79,29 @@ export function Layout() {
         <div className={cn("border-b", collapsed ? "p-2 flex justify-center" : "p-4")}>
           <Link to="/" className={cn("flex items-center font-bold text-base tracking-tight", collapsed ? "justify-center" : "gap-2")}>
             <BarChart3 className="h-5 w-5 text-primary shrink-0" />
-            {!collapsed && "Vibe-Trading"}
+            {!collapsed && t.brandName}
           </Link>
         </div>
 
         {/* Nav */}
         <nav className={cn("space-y-0.5", collapsed ? "p-1" : "p-2")}>
-          {NAV.map(({ to, icon: Icon, label }) => {
-            const text = label;
-            return (
-              <Link
-                key={to}
-                to={to}
-                className={cn(
-                  "flex items-center rounded-md text-sm transition-colors",
-                  collapsed ? "justify-center p-2" : "gap-3 px-3 py-2",
-                  (to === "/" ? pathname === "/" : pathname.startsWith(to))
-                    ? "bg-primary/10 text-primary font-medium"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
-                title={collapsed ? text : undefined}
-              >
-                <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                {!collapsed && text}
-              </Link>
-            );
-          })}
+          {NAV.map(({ to, icon: Icon, key }) => (
+            <Link
+              key={to}
+              to={to}
+              className={cn(
+                "flex items-center rounded-md text-sm transition-colors",
+                collapsed ? "justify-center p-2" : "gap-3 px-3 py-2",
+                (to === "/" ? pathname === "/" : pathname.startsWith(to))
+                  ? "bg-primary/10 text-primary font-medium"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
+              title={collapsed ? t[key] : undefined}
+            >
+              <Icon className="h-4 w-4 shrink-0" />
+              {!collapsed && t[key]}
+            </Link>
+          ))}
         </nav>
 
         {/* Sessions — hidden when collapsed */}
@@ -112,12 +110,12 @@ export function Layout() {
             <div className="flex items-center justify-between px-4 py-2">
               <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                 <MessageSquare className="h-3.5 w-3.5" />
-                Sessions
+                {t.sessions}
               </span>
               <Link
                 to="/agent"
                 className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                title="New Chat"
+                title={t.newChat}
               >
                 <Plus className="h-3.5 w-3.5" />
               </Link>
@@ -131,7 +129,7 @@ export function Layout() {
                   ))}
                 </div>
               ) : sessions.length === 0 ? (
-                <p className="px-3 py-2 text-xs text-muted-foreground/60">No sessions yet</p>
+                <p className="px-3 py-2 text-xs text-muted-foreground/60">{t.noSessions}</p>
               ) : null}
               {sessions.map((s) => {
                 const isActive = s.session_id === activeSessionId;
@@ -170,22 +168,22 @@ export function Layout() {
                     )}
                     {!isRenaming && isDeleting ? (
                       <div className="absolute right-0.5 flex items-center gap-0.5">
-                        <button onClick={() => deleteSession(s.session_id)} className="p-1 text-danger hover:bg-danger/10 rounded text-[10px] font-medium">Confirm</button>
-                        <button onClick={() => setDeleteTarget(null)} className="p-1 text-muted-foreground hover:bg-muted rounded text-[10px]">Cancel</button>
+                        <button onClick={() => deleteSession(s.session_id)} className="p-1 text-danger hover:bg-danger/10 rounded text-[10px] font-medium">{t.confirmDelete}</button>
+                        <button onClick={() => setDeleteTarget(null)} className="p-1 text-muted-foreground hover:bg-muted rounded text-[10px]">{t.cancelDelete}</button>
                       </div>
                     ) : !isRenaming ? (
                       <div className="absolute right-1 opacity-0 group-hover:opacity-100 flex items-center gap-0.5 transition-opacity">
                         <button
                           onClick={(e) => { e.preventDefault(); e.stopPropagation(); setRenameTarget(s.session_id); setRenameValue(s.title || ""); }}
                           className="p-1 text-muted-foreground hover:text-foreground rounded"
-                          title="Rename"
+                          title={t.renameSessionTitle}
                         >
                           <Pencil className="h-3 w-3" />
                         </button>
                         <button
                           onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDeleteTarget(s.session_id); }}
                           className="p-1 text-muted-foreground hover:text-danger rounded"
-                          title="Delete?"
+                          title={t.deleteConfirm}
                         >
                           <Trash2 className="h-3 w-3" />
                         </button>
@@ -205,34 +203,55 @@ export function Layout() {
         <div className={cn("border-t", collapsed ? "p-1 flex flex-col items-center gap-1" : "p-3 space-y-2")}>
           {collapsed ? (
             <>
-              <button onClick={toggle} className="p-1.5 text-muted-foreground hover:text-foreground rounded transition-colors" title={dark ? "Light" : "Dark"}>
+              <button
+                type="button"
+                onClick={() => setLocale(locale === "en" ? "zh-CN" : "en")}
+                className="p-1.5 text-muted-foreground hover:text-foreground rounded transition-colors text-[10px] font-medium"
+                title={t.language}
+              >
+                {locale === "zh-CN" ? "中" : "EN"}
+              </button>
+              <button onClick={toggle} className="p-1.5 text-muted-foreground hover:text-foreground rounded transition-colors" title={dark ? t.lightMode : t.darkMode}>
                 {dark ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
               </button>
-              <button onClick={() => setCollapsed(false)} className="p-1.5 text-muted-foreground hover:text-foreground rounded transition-colors" title="Expand">
+              <button onClick={() => setCollapsed(false)} className="p-1.5 text-muted-foreground hover:text-foreground rounded transition-colors" title={t.sidebarExpand}>
                 <ChevronsRight className="h-3.5 w-3.5" />
               </button>
             </>
           ) : (
             <>
+              <div className="flex items-center justify-between gap-1">
+                <label className="flex flex-1 min-w-0 items-center gap-1">
+                  <span className="text-[10px] text-muted-foreground shrink-0">{t.language}</span>
+                  <select
+                    value={locale}
+                    onChange={(e) => setLocale(e.target.value as "en" | "zh-CN")}
+                    className="flex-1 min-w-0 rounded border bg-background px-1 py-0.5 text-[10px] outline-none focus:border-primary"
+                  >
+                    <option value="en">{t.langEnglish}</option>
+                    <option value="zh-CN">{t.langChinese}</option>
+                  </select>
+                </label>
+              </div>
               <div className="flex items-center justify-between">
                 <button
                   onClick={toggle}
                   className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {dark ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
-                  {dark ? "Light" : "Dark"}
+                  {dark ? t.lightMode : t.darkMode}
                 </button>
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => setCollapsed(true)}
                     className="p-1 text-muted-foreground hover:text-foreground rounded transition-colors"
-                    title="Collapse"
+                    title={t.sidebarCollapse}
                   >
                     <ChevronsLeft className="h-3.5 w-3.5" />
                   </button>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground/60">{APP_VERSION}</p>
+              <p className="text-xs text-muted-foreground/60">{t.studioName} · {APP_VERSION}</p>
             </>
           )}
         </div>

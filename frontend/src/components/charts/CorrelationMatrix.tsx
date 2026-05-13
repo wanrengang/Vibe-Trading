@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { echarts } from "@/lib/echarts";
 import { getChartTheme } from "@/lib/chart-theme";
+import { useI18n } from "@/lib/i18n";
 
 interface Props {
   labels: string[];
@@ -10,6 +11,7 @@ interface Props {
 
 export function CorrelationMatrix({ labels, matrix, height = 500 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
+  const { t: msg } = useI18n();
 
   useEffect(() => {
     if (!ref.current || labels.length === 0 || matrix.length === 0) return;
@@ -77,7 +79,7 @@ export function CorrelationMatrix({ labels, matrix, height = 500 }: Props) {
       },
       series: [
         {
-          name: "Correlation",
+          name: msg.correlation,
           type: "heatmap",
           data,
           label: {
@@ -99,10 +101,10 @@ export function CorrelationMatrix({ labels, matrix, height = 500 }: Props) {
     const ro = new ResizeObserver(() => chart.resize());
     ro.observe(ref.current!);
     return () => { ro.disconnect(); chart.dispose(); };
-  }, [labels, matrix]);
+  }, [labels, matrix, msg]);
 
   if (labels.length === 0) {
-    return <div className="text-muted-foreground text-sm p-4">No correlation data</div>;
+    return <div className="text-muted-foreground text-sm p-4">{msg.noCorrelationData}</div>;
   }
   return <div ref={ref} style={{ height }} />;
 }

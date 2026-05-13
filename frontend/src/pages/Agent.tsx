@@ -13,6 +13,7 @@ import { MessageBubble } from "@/components/chat/MessageBubble";
 import { ThinkingTimeline } from "@/components/chat/ThinkingTimeline";
 import { ConversationTimeline } from "@/components/chat/ConversationTimeline";
 import { ToolProgressIndicator } from "@/components/chat/ToolProgressIndicator";
+import { useI18n } from "@/lib/i18n";
 
 /* ---------- Message grouping ---------- */
 type MsgGroup =
@@ -80,6 +81,7 @@ function latestGoalEvidence(snapshot: GoalSnapshot) {
 
 /* ---------- Component ---------- */
 export function Agent() {
+  const { t } = useI18n();
   const [input, setInput] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
   const listRef = useRef<HTMLDivElement>(null);
@@ -838,7 +840,7 @@ export function Agent() {
           {uploading && (
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Loader2 className="h-3 w-3 animate-spin" />
-              Uploading...
+              {t.uploadingLabel}
             </div>
           )}
           <div className="flex gap-2 items-end">
@@ -849,7 +851,7 @@ export function Agent() {
                 onClick={() => setShowUploadMenu(prev => !prev)}
                 disabled={status === "streaming" || uploading}
                 className="w-9 h-9 rounded-full border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40 shrink-0"
-                title="More options"
+                title={t.moreOptions}
               >
                 <Plus className="h-4 w-4" />
               </button>
@@ -861,7 +863,7 @@ export function Agent() {
                     className="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors flex items-center gap-2"
                   >
                     <Paperclip className="h-4 w-4" />
-                    Upload PDF document
+                    {t.uploadPdfDocument}
                   </button>
                   <div className="border-t my-1" />
                   <button
@@ -882,13 +884,13 @@ export function Agent() {
                     onClick={() => {
                       setShowUploadMenu(false);
                       setGoalComposerActive(false);
-                      setSwarmPreset({ name: "auto", title: "Agent Swarm" });
+                      setSwarmPreset({ name: "auto", title: t.agentSwarmMenu });
                       inputRef.current?.focus();
                     }}
                     className="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors flex items-center gap-2"
                   >
                     <Users className="h-4 w-4" />
-                    Agent Swarm
+                    {t.agentSwarmMenu}
                   </button>
                 </div>
               )}
@@ -929,7 +931,7 @@ export function Agent() {
                 type="button"
                 onClick={handleExport}
                 className="px-3 py-2.5 rounded-xl border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                title="Export chat"
+                title={t.exportChat}
               >
                 <Download className="h-4 w-4" />
               </button>
@@ -939,7 +941,7 @@ export function Agent() {
                 type="button"
                 onClick={handleCancel}
                 className="px-4 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-sm font-medium hover:opacity-90 transition-opacity"
-                title="Stop generation"
+                title={t.stopGeneration}
               >
                 <Square className="h-4 w-4" />
               </button>

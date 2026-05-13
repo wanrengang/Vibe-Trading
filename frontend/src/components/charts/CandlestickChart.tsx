@@ -7,6 +7,7 @@ import { getChartTheme } from "@/lib/chart-theme";
 import { abbreviateNum } from "@/lib/formatters";
 import { echarts, CHART_GROUP, connectCharts } from "@/lib/echarts";
 import { useDarkMode } from "@/hooks/useDarkMode";
+import { useI18n } from "@/lib/i18n";
 
 type Sub = "vol" | "macd" | "rsi" | "kdj";
 type Range = "1M" | "3M" | "6M" | "1Y" | "ALL";
@@ -40,6 +41,7 @@ export function CandlestickChart({ data, markers, indicators, height = 500 }: Pr
   const [overlays, setOverlays] = useState<Set<Overlay>>(new Set(["ma5", "ma20"]));
   const [showMenu, setShowMenu] = useState(false);
   const { dark } = useDarkMode();
+  const { t: msg } = useI18n();
 
   const toggleOverlay = useCallback((id: Overlay) => {
     setOverlays(prev => {
@@ -221,7 +223,7 @@ export function CandlestickChart({ data, markers, indicators, height = 500 }: Pr
         },
       },
       toolbox: {
-        feature: { saveAsImage: { title: "Save" }, dataZoom: { title: { zoom: "Zoom", back: "Reset" } }, restore: { title: "Reset" } },
+        feature: { saveAsImage: { title: msg.chartSave }, dataZoom: { title: { zoom: msg.chartZoom, back: msg.chartReset } }, restore: { title: msg.chartReset } },
         right: 8, top: 0, iconStyle: { borderColor: t.textColor },
       },
       legend: { data: legendNames, textStyle: { color: t.textColor, fontSize: 10 }, right: 80, top: 2, type: "scroll", itemWidth: 12, itemHeight: 8, itemGap: 8 },
@@ -252,10 +254,10 @@ export function CandlestickChart({ data, markers, indicators, height = 500 }: Pr
         ...subSeries,
       ],
     }, true);
-  }, [data, markers, baseData, indicatorCache, extraIndicators, sub, range, overlays, dark]);
+  }, [data, markers, baseData, indicatorCache, extraIndicators, sub, range, overlays, dark, msg]);
 
   if (data.length === 0) {
-    return <div className="text-muted-foreground text-sm p-4">No price data</div>;
+    return <div className="text-muted-foreground text-sm p-4">{msg.noPriceData}</div>;
   }
 
   return (
@@ -276,13 +278,13 @@ export function CandlestickChart({ data, markers, indicators, height = 500 }: Pr
             onClick={() => setShowMenu(!showMenu)}
             className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
           >
-            Indicators ({overlays.size}) <ChevronDown className="h-3 w-3" />
+            {msg.overlayIndicators} ({overlays.size}) <ChevronDown className="h-3 w-3" />
           </button>
           {showMenu && (
             <div className="absolute top-full left-0 mt-1 z-50 bg-card border rounded-lg shadow-lg p-2 min-w-[160px]" onMouseLeave={() => setShowMenu(false)}>
               {["MA", "Channel"].map(group => (
                 <div key={group}>
-                  <p className="text-[9px] text-muted-foreground/50 uppercase tracking-wider px-1 pt-1">{group}</p>
+                  <p className="text-[9px] text-muted-foreground/50 uppercase tracking-wider px-1 pt-1">{group === "MA" ? msg.overlayMA : msg.overlayChannel}</p>
                   {OVERLAY_OPTIONS.filter(o => o.group === group).map(o => (
                     <label key={o.id} className="flex items-center gap-2 px-1 py-0.5 rounded hover:bg-muted/30 cursor-pointer">
                       <input type="checkbox" checked={overlays.has(o.id)} onChange={() => toggleOverlay(o.id)} className="h-3 w-3 rounded accent-primary" />
@@ -293,7 +295,7 @@ export function CandlestickChart({ data, markers, indicators, height = 500 }: Pr
               ))}
               <div className="border-t mt-1 pt-1">
                 <button onClick={() => { setOverlays(new Set()); setShowMenu(false); }} className="text-[10px] text-muted-foreground hover:text-foreground px-1 py-0.5 w-full text-left rounded hover:bg-muted/30">
-                  Bare K (clear all)
+                  {msg.overlayClearAll}
                 </button>
               </div>
             </div>

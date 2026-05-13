@@ -3,6 +3,7 @@ import { Database, KeyRound, Loader2, RotateCcw, Save, Server, SlidersHorizontal
 import { toast } from "sonner";
 import { api, isAuthRequiredError, type DataSourceSettings, type LLMProviderOption, type LLMSettings } from "@/lib/api";
 import { getApiAuthKey, setApiAuthKey } from "@/lib/apiAuth";
+import { useI18n, type Locale } from "@/lib/i18n";
 
 interface LLMFormState {
   provider: string;
@@ -32,6 +33,7 @@ function toForm(settings: LLMSettings): LLMFormState {
 }
 
 export function Settings() {
+  const { t, locale, setLocale } = useI18n();
   const [settings, setSettings] = useState<LLMSettings | null>(null);
   const [dataSettings, setDataSettings] = useState<DataSourceSettings | null>(null);
   const [form, setForm] = useState<LLMFormState | null>(null);
@@ -147,6 +149,25 @@ export function Settings() {
     }
   };
 
+  const displaySection = (
+    <div className="rounded-lg border bg-card p-5 shadow-sm">
+      <div className="mb-4">
+        <h2 className="text-base font-semibold">{t.appearance}</h2>
+      </div>
+      <label className="grid max-w-md gap-2">
+        <span className={labelClass}>{t.language}</span>
+        <select
+          value={locale}
+          onChange={(event) => setLocale(event.target.value as Locale)}
+          className={fieldClass}
+        >
+          <option value="en">{t.langEnglish}</option>
+          <option value="zh-CN">{t.langChinese}</option>
+        </select>
+      </label>
+    </div>
+  );
+
   const localApiAccessSection = (
     <form onSubmit={submitLocalApiKey} className="rounded-lg border bg-card p-5 shadow-sm">
       <div className="mb-4 space-y-1">
@@ -187,6 +208,7 @@ export function Settings() {
           <h1 className="text-2xl font-semibold tracking-tight">{"Settings"}</h1>
           <p className="max-w-3xl text-sm text-muted-foreground">{"Configure model credentials and market data source tokens for this local project."}</p>
         </div>
+        {displaySection}
         {localApiAccessSection}
         <div className="flex min-h-32 items-center justify-center rounded-lg border bg-card p-5 text-sm text-muted-foreground">
           {settingsLoadError ? (
@@ -223,6 +245,8 @@ export function Settings() {
         <h1 className="text-2xl font-semibold tracking-tight">{"Settings"}</h1>
         <p className="max-w-3xl text-sm text-muted-foreground">{"Configure model credentials and market data source tokens for this local project."}</p>
       </div>
+
+      {displaySection}
 
       {localApiAccessSection}
 
