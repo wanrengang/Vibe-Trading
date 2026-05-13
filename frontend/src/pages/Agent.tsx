@@ -79,6 +79,10 @@ function latestGoalEvidence(snapshot: GoalSnapshot) {
     .slice(0, 2);
 }
 
+function template(text: string, vars: Record<string, string | number>): string {
+  return text.replace(/\{(\w+)\}/g, (_, key) => String(vars[key] ?? ""));
+}
+
 /* ---------- Component ---------- */
 export function Agent() {
   const { t } = useI18n();
@@ -371,7 +375,7 @@ export function Agent() {
       "attempt.failed": (d) => {
         touch();
         act().clearStreaming();
-        act().addMessage({ id: "", type: "error", content: String(d.error || "Execution failed"), timestamp: Date.now() });
+        act().addMessage({ id: "", type: "error", content: String(d.error || t.executionFailed), timestamp: Date.now() });
         act().setStatus("idle");
         // Clear stale toolCalls so the next turn's running indicator doesn't
         // briefly show the previous turn's progress before fresh events land.
@@ -525,9 +529,9 @@ export function Agent() {
       act().setStatus("idle");
       act().clearStreaming();
       useAgentStore.setState({ toolCalls: [] });
-      toast.info("Cancel request sent");
+      toast.info(t.cancelSent);
     } catch {
-      toast.error("Cancel failed");
+      toast.error(t.cancelFailed);
     }
   };
 
@@ -550,19 +554,19 @@ export function Agent() {
 
   const handleExport = () => {
     if (messages.length === 0) return;
-    const lines: string[] = [`# Chat Export`, ``, `Export time: ${new Date().toLocaleString()}`, ``];
+    const lines: string[] = [t.exportTitle, ``, `${t.exportTime}: ${new Date().toLocaleString()}`, ``];
     for (const msg of messages) {
       const time = new Date(msg.timestamp).toLocaleString();
       if (msg.type === "user") {
-        lines.push(`## User (${time})`, ``, msg.content, ``);
+        lines.push(`${t.exportUser} (${time})`, ``, msg.content, ``);
       } else if (msg.type === "answer") {
-        lines.push(`## Assistant (${time})`, ``, msg.content, ``);
+        lines.push(`${t.exportAssistant} (${time})`, ``, msg.content, ``);
       } else if (msg.type === "error") {
-        lines.push(`## Error (${time})`, ``, msg.content, ``);
+        lines.push(`${t.exportError} (${time})`, ``, msg.content, ``);
       } else if (msg.type === "tool_call") {
-        lines.push(`> Tool call: ${msg.tool || "unknown"}`, ``);
+        lines.push(`${t.exportToolCall}: ${msg.tool || t.unknown}`, ``);
       } else if (msg.type === "run_complete") {
-        lines.push(`> Backtest complete: ${msg.runId || ""}`, ``);
+        lines.push(`${t.exportRunComplete}: ${msg.runId || ""}`, ``);
       }
     }
     const blob = new Blob([lines.join("\n")], { type: "text/markdown;charset=utf-8" });
@@ -585,11 +589,11 @@ export function Agent() {
     ];
     const lowered = file.name.toLowerCase();
     if (blockedExts.some((ext) => lowered.endsWith(ext))) {
-      toast.error("Executables and archives are not allowed");
+      toast.error(t.fileTypeNotAllowed);
       return;
     }
     if (file.size > 50 * 1024 * 1024) {
-      toast.error("File size exceeds 50 MB limit");
+      toast.error(t.fileTooLarge);
       return;
     }
     setUploading(true);
@@ -597,9 +601,9 @@ export function Agent() {
     try {
       const result = await api.uploadFile(file);
       setAttachment({ filename: result.filename, filePath: result.file_path });
-      toast.success(`Uploaded: ${result.filename}`);
+      toast.success(template(t.uploadSuccess, { filename: result.filename }));
     } catch (err) {
-      toast.error(`Upload failed: ${err instanceof Error ? err.message : "Unknown error"}`);
+      toast.error(template(t.uploadFailed, { error: err instanceof Error ? err.message : t.unknown }));
     } finally {
       setUploading(false);
     }
@@ -694,7 +698,7 @@ export function Agent() {
             onClick={forceScrollToBottom}
             className="sticky bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-medium shadow-lg hover:opacity-90 transition-opacity z-10"
           >
-            <ArrowDown className="h-3 w-3" /> New messages
+            <ArrowDown className="h-3 w-3" /> {t.newMessages}
           </button>
         )}
         <ConversationTimeline messages={messages} containerRef={listRef} />
