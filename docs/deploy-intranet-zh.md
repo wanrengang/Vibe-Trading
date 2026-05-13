@@ -115,8 +115,108 @@ agent/uploads
 
 ```bash
 cd Vibe-Trading
+git checkout codex-zh-ui-localization
 git pull
 docker compose up -d --build vibe-trading
+```
+
+## 同步官方更新
+
+本项目建议长期保留两个分支：
+
+```text
+main
+用于跟踪官方原版，尽量不直接二开。
+
+codex-zh-ui-localization
+用于万策量化中文二开、品牌和内网部署。
+```
+
+如果本地还没有官方远程仓库，先配置一次：
+
+```bash
+git remote -v
+git remote add upstream https://github.com/HKUDS/Vibe-Trading.git
+```
+
+如果已经有 `upstream`，不用重复添加。
+
+### 在开发机同步官方更新
+
+先保证自己的中文分支已经提交干净：
+
+```bash
+git checkout codex-zh-ui-localization
+git status
+```
+
+如果有未提交改动，先提交或暂存。
+
+然后更新官方主线：
+
+```bash
+git fetch upstream
+git checkout main
+git merge --ff-only upstream/main
+```
+
+再把官方更新合入中文二开分支：
+
+```bash
+git checkout codex-zh-ui-localization
+git rebase main
+```
+
+如果出现冲突，按提示修复冲突文件，然后执行：
+
+```bash
+git add 冲突文件
+git rebase --continue
+```
+
+如果想放弃本次 rebase：
+
+```bash
+git rebase --abort
+```
+
+合并完成后，本地验证：
+
+```bash
+docker compose config --quiet
+docker compose up -d --build vibe-trading
+curl http://127.0.0.1:8899/health
+```
+
+确认没问题后推送你的中文分支：
+
+```bash
+git push origin codex-zh-ui-localization
+```
+
+如果 rebase 后 Git 提示需要 force push，使用更安全的：
+
+```bash
+git push --force-with-lease origin codex-zh-ui-localization
+```
+
+### 在服务器更新到最新中文版本
+
+服务器只需要拉你的中文分支，不需要处理官方合并：
+
+```bash
+cd Vibe-Trading
+git checkout codex-zh-ui-localization
+git pull
+docker compose up -d --build vibe-trading
+curl http://127.0.0.1:8899/health
+```
+
+也就是说：
+
+```text
+开发机：负责同步 upstream 官方更新、解决冲突、推送中文分支。
+服务器：只负责拉取 codex-zh-ui-localization 并重建容器。
 ```
 
 ## 备份数据
