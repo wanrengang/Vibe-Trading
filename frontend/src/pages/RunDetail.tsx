@@ -64,6 +64,7 @@ function buildMetricsCsv(metrics: BacktestMetrics): string {
 }
 
 export function RunDetail() {
+  const { t } = useI18n();
   const { runId } = useParams<{ runId: string }>();
   const navigate = useNavigate();
   const [run, setRun] = useState<RunData | null>(null);

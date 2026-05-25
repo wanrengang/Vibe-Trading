@@ -97,6 +97,7 @@ interface Props {
 }
 
 export function WelcomeScreen({ onExample }: Props) {
+  const { t } = useI18n();
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8 text-center">
       <div className="space-y-3">
@@ -109,7 +110,7 @@ export function WelcomeScreen({ onExample }: Props) {
             {t.welcomeTagline}
           </p>
           <p className="text-sm text-muted-foreground mt-2 max-w-md leading-relaxed mx-auto">
-            Describe a trading strategy to get started.
+            {t.describeStrategy}
           </p>
         </div>
       </div>

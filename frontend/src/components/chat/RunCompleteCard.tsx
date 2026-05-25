@@ -2,6 +2,7 @@ import { memo, useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { BarChart3, Code2, FileText, Loader2 } from "lucide-react";
 import { api } from "@/lib/api";
+import { useI18n } from "@/lib/i18n";
 import { AgentAvatar } from "./AgentAvatar";
 import { MetricsCard } from "./MetricsCard";
 import { MiniEquityChart } from "@/components/charts/MiniEquityChart";
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export const RunCompleteCard = memo(function RunCompleteCard({ msg }: Props) {
+  const { t } = useI18n();
   const [curve, setCurve] = useState(msg.equityCurve);
   const [pineCode, setPineCode] = useState<string | null>(null);
   const [pineLoading, setPineLoading] = useState(false);
